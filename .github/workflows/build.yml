@@ -1,19 +1,38 @@
-name: Build exe
+name: Build PDF Merger EXE
+
 on:
   push:
     branches: [ main ]
   workflow_dispatch:   # 手动触发按钮
+
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -U pip pyinstaller pypdf tkinter
-      - run: pyinstaller --onefile --noconsole main.py
-      - uses: actions/upload-artifact@v4
+          
+      - name: Create virtual environment
+        run: |
+          python -m venv venv
+          venv\Scripts\activate
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyinstaller pypdf4
+          
+      - name: Build EXE with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name="PDF合并工具" your_script_name.py
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: main.exe
-          path: dist/main.exe
+          name: PDF_Merger_Tool
+          path: dist/PDF合并工具.exe
