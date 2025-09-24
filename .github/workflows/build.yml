@@ -20,9 +20,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pyinstaller pypdf4 # 安装pypdf4
+          pip install pyinstaller pypdf  # 改为安装 pypdf，而不是 pypdf4
           
-      - name: Build EXE with PyInstaller (with hidden import)
+      - name: Build EXE with PyInstaller
         run: |
           pyinstaller --onefile --windowed --name="PDF合并工具" --hidden-import=pypdf main.py
           
