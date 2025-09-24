@@ -1,7 +1,9 @@
+import sys
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from pypdf import PdfWriter
+import datetime
 
 pdf_paths = [None] * 9
 buttons = []
@@ -23,6 +25,25 @@ def clear_one(idx):
 
 import datetime
 
+def get_base_dir():
+    """获取当前程序运行的基目录。
+    如果是 PyInstaller 打包后的单文件模式，返回 EXE 所在目录。
+    如果是开发模式（Python 脚本），返回脚本所在目录。
+    """
+    if getattr(sys, 'frozen', False):
+        # 应用程序是打包后的可执行文件
+        return os.path.dirname(sys.executable)
+    else:
+        # 应用程序在开发环境中运行（Python 解释器）
+        return os.path.dirname(os.path.abspath(__file__))
+
+def ensure_output_dir(base_dir):
+    """确保输出目录存在，如果不存在则创建"""
+    output_dir = os.path.join(base_dir, "output")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    return output_dir
+
 def merge_pdfs():
     valid = [p for p in pdf_paths if p]
     if not valid:
@@ -39,7 +60,11 @@ def merge_pdfs():
         time_stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         out_name = f"{first_name}_{time_stamp}.pdf"
 
-        out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), out_name)
+        # 获取基目录并确保输出目录存在
+        base_dir = get_base_dir()
+        output_dir = ensure_output_dir(base_dir)
+        out_path = os.path.join(output_dir, out_name)
+
         merger.write(out_path)
         messagebox.showinfo("完成", f"合并成功！\n已保存到：{out_path}")
     except Exception as e:
@@ -55,7 +80,7 @@ def clear_all():
 
 # -------------------- GUI 部分 --------------------
 root = tk.Tk()
-root.title("PDF 合并小工具")
+root.title("PDF Merger")
 root.resizable(False, False)
 
 main_frame = tk.Frame(root)
